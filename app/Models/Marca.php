@@ -8,4 +8,8 @@ class Marca extends Model
 {
     protected $table = 'marcas';
     public $timestamps = false;
+
+    protected $attributes = [
+        'delayed' => false,
+    ];
 }

@@ -5,11 +5,13 @@ function random_rgba() {
     return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ')';
 }
 
-
+//var baseUrl = 'http://127.0.0.1:8000';
+var baseUrl ='https://vehiculoselectiva2.000webhostapp.com'
 var optionShow;
+var nameLabal;
 
 $(document).ready(function () {
- 
+
 
 
     /**
@@ -17,53 +19,72 @@ $(document).ready(function () {
      */
     $('#tabs').tabs();
 
-    
+
+    /**
+     * Limpiando datos
+     */
+    function cleanG() {
+        $('#graficas').empty();
+        $('#tableDetails_wrapper').hide();
+        $('#tableDetails').addClass('invisible');
+    }
+
+
+
 
     /**
      * get links for fetch
      */
     $('[href = "#tabs-1"]').click(() => {
         console.log('click tab 1');
-        $('#graficas2').empty();
-        $('#graficas3').empty();
-        $('#tableBody').empty();
-        $('#tableDetails').addClass('invisible');
-        $('#graficas1').append('<canvas id="graphic" width="400" height="400"></canvas>');
-        getJson('http://127.0.0.1:8000/api/marcas');
 
+        cleanG();
+        $('#graficas').append('<canvas id="graphic" width="400" height="400"></canvas>');
+        getJson(baseUrl + '/api/marcasTop');
+        $('#tableDetails').removeClass('invisible');
         optionShow = 1;
-
+        nameLabal = "Marcas populares en El Salvador";
 
     });
 
     $('[href = "#tabs-2"]').click(() => {
-        $('#graficas1').empty();
-        $('#graficas3').empty();
-        $('#tableBody').empty();
-        $('#tableDetails').addClass('invisible');
         console.log('click tab 2');
-        $('#graficas2').append('<canvas id="graphic" width="400" height="400"></canvas>');
-        getJson('http://127.0.0.1:8000/api/departamentos');
-
+        cleanG();
+        $('#graficas').append('<canvas id="graphic" width="400" height="400"></canvas>');
+        getJson(baseUrl + '/api/departamentos');
+        $('#tableDetails').removeClass('invisible');
         optionShow = 2;
-
+        nameLabal = "Total vehiculos por departamentos de El Salvador";
 
     });
 
     $('[href = "#tabs-3"]').click(() => {
-        $('#graficas2').empty();
-        $('#graficas1').empty();
-        $('#tableBody').empty();
-        $('#tableDetails').addClass('invisible');
         console.log('click tab 3');
-        $('#graficas3').append('<canvas id="graphic" width="400" height="400"></canvas>');
-        getJson('http://127.0.0.1:8000/api/combustibles');
-
+        cleanG();
+        $('#graficas').append('<canvas id="graphic" width="400" height="400"></canvas>');
+        getJson(baseUrl + '/api/combustibles');
+        $('#tableDetails').removeClass('invisible');
         optionShow = 3;
-
+        nameLabal = "Combustible más usado en El Salvador";
 
     });
 
+    $('[href = "#tabs-4"]').click(() => {
+        console.log('click tab 1');
+        cleanG();
+        $('#graficas').append('<canvas id="graphic" width="400" height="400"></canvas>');
+        getJson(baseUrl + '/api/modelosTop');
+        $('#tableDetails').removeClass('invisible');
+        optionShow = 4;
+        nameLabal = "Modelos de vehiculos más populares en El Salvador";
+    });
+
+    $('[href = "#tabs-5"]').click(() => {
+        cleanG();
+        $('#tableBody').empty();
+        $('#tableDetails').addClass('invisible');
+        $('#tableDetails0,#tableDetails0_wrapper').hide();
+    });
 
     /**
      * Graficas
@@ -71,10 +92,13 @@ $(document).ready(function () {
 
     function getJson(url) {
         console.log(url);
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                graficar(data.data);
+                //console.log(data);
+                graficar(data);
+                getDataTable();
             });
 
     }
@@ -104,7 +128,7 @@ $(document).ready(function () {
             data: {
                 labels: xLabels,
                 datasets: [{
-                    label: "",
+                    label: nameLabal,
                     data: yValues,
                     backgroundColor: colors
                 }]
@@ -139,71 +163,54 @@ $(document).ready(function () {
             var label = myChart.data.labels[firstPoint._index];
             var value = myChart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
             console.log(label);
-            $("html, body").animate({ scrollTop: $('#tableDetails').offset().top }, 1000);
+            var bottom = $(document).height() - $(window).height();
+            $("HTML, BODY").animate({
+                scrollTop: bottom
+            }, 1000);
             $('#tableDetails').removeClass('invisible');
             //optionShow = label;
             getDataTable(label);
         };
+
+
     }
 
     function getDataTable(url) {
         console.log('listo para crear la tabla ' + url + ' opcion: ' + optionShow);
 
-        var query;
-        var name;
-
         if (optionShow == '1') {
-            query = 'http://127.0.0.1:8000/api/marcas';
-            name = "Modelos";
-            if (query != '') {
-                fetch(query)
-                    .then(data => data.json())
-                    .then(data => {
-                        createTable(data.data, name);
-                    });
-            }
+            createTable(baseUrl + '/api/marcas');
         }
         else if (optionShow == '2') {
-            query = 'http://127.0.0.1:8000/api/departamentos/' + url;
-            name = "Municipios";
-
-            if (query != '') {
-                fetch(query)
-                    .then(data => data.json())
-                    .then(data => {
-                        createTable(data, name);
-                    });
+            if (url != undefined) {
+                createTable(baseUrl + '/api/departamentos/' + url);
             }
+            else {
+                createTable(baseUrl + '/api/departamentos');
+            }
+
+
+
         } else if (optionShow == '3') {
-            query = 'http://127.0.0.1:8000/api/combustibles';
-            name = "Combustible";
-            if (query != '') {
-                fetch(query)
-                    .then(data => data.json())
-                    .then(data => {
-                        createTable(data.data, name);
-                    });
-            }
+            createTable(baseUrl + '/api/combustibles');
+        } else if (optionShow == '4') {
+            createTable(baseUrl + '/api/modelos');
         }
-
-
-
     }
 
-    function createTable(data, name) {
-        console.log(data, name);
-        $('#tableBody').empty();
-        const tableRow = document.getElementById('tableBody');
+    function createTable(fromurl) {
+        $('#tableDetails').DataTable({
+            "bDestroy": true,
+            ajax: {
+                method: "GET",
+                url: fromurl,
+                dataSrc: ""
 
-
-
-        data.forEach(index => {
-            tableRow.innerHTML += `<tr>
-            <td>${index.datox}</td>
-            <td>${index.total}</td>
-            
-        </tr>
-            `;
+            },
+            columns: [
+                { "data": "datox" },
+                { "data": "total" }
+            ]
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Departamento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class DepartamentoController extends Controller
 {
@@ -17,18 +18,22 @@ class DepartamentoController extends Controller
     {
         return Departamento::select(Departamento::raw('count(*) as total'), 'departamento as datox')
             ->groupBy('departamento')
-            ->orderBy('departamento', 'desc')
-            ->paginate(14);
+            ->orderBy('total', 'desc')
+            ->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store($request)
+
+    public function exportPdf()
     {
+        $deptos = Departamento::select(Departamento::raw('count(*) as total'), 'departamento as datox')
+            ->groupBy('departamento')
+            ->orderBy('total', 'desc')
+            ->get();
+
+
+        $pdf = PDF::loadView('pdf.departamentos', compact('deptos'));
+        return $pdf->download('departamentos.pdf');
+        //return view('pdf.departamentos',compact('deptos'));
     }
 
     /**
@@ -54,32 +59,9 @@ class DepartamentoController extends Controller
         $depts = Departamento::select(Departamento::raw('count(*) as total'), 'municipio as datox')
             ->where('departamento', $request)
             ->groupBy('municipio')
-            ->orderBy('total','desc')
+            ->orderBy('total', 'desc')
             ->get();
 
         return Response::json($depts, 200);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

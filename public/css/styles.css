@@ -1,0 +1,16 @@
+#tableDetails_wrapper{
+    margin-top: 50px !important;
+}
+
+#tabs{
+    border: none !important;
+}
+
+#graficas{
+    width: 500px !important;
+}
+
+#btnPdf a{
+text-decoration: none;
+color: #fff;
+}

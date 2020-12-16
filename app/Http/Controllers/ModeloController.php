@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vehiculo;
+use App\Models\TipoVehiculo;
 use Illuminate\Http\Request;
 
-class CombustibleController extends Controller
+class ModeloController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +14,11 @@ class CombustibleController extends Controller
      */
     public function index()
     {
-        return Vehiculo:: select(Vehiculo::raw('count(*) as total'), 'tipoCombustible as datox')
-        ->groupBy('tipoCombustible')
+        return TipoVehiculo::select(TipoVehiculo::raw('count(*) as total'),'tipo as datox')
+        ->where('tipo','!=','N/D')
+        ->groupBy('tipo')
         ->orderBy('total','desc')
+        ->limit(10)
         ->get();
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class MarcaController extends Controller
 {
@@ -14,54 +15,24 @@ class MarcaController extends Controller
      */
     public function index()
     {
-       return Marca::select(Marca::raw('count(*) as total'), 'marca as datox')
-       ->groupBy('marca')
-       ->orderBy('total','desc')
-       ->paginate(10);
+        return Marca::select(Marca::raw('count(*) as total'), 'marca as datox')
+            ->groupBy('marca')
+            ->orderBy('total', 'desc')
+
+            ->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function exportPdf()
     {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+        $marcas = Marca::select(Marca::raw('count(*) as total'), 'marca as datox')
+            ->groupBy('marca')
+            ->orderBy('total', 'desc')
+            ->get();
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $pdf = PDF::loadView('pdf.marcas', compact('marcas'));
+        return $pdf->download('marcas-list.pdf');
+        //return view('pdf.marcas', compact('marcas'));
     }
 }

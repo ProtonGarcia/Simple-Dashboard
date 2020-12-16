@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('marcas-pdf','MarcaController@exportPdf')->name('marcas.pdf');
+Route::get('departamentos-pdf','DepartamentoController@exportPdf')->name('departamentos.pdf');
+Route::get('modelos-pdf','TipoVehiculoController@exportPdf')->name('modelos.pdf');
+

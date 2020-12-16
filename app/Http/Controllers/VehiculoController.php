@@ -31,7 +31,7 @@ class VehiculoController extends Controller
         ->simplePaginate(10);
     }
 
-    public function show($id)
+    public function show($nombreVehiculo)
     {
         //
     }

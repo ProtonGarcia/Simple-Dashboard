@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vehiculo;
+use App\Models\TipoVehiculo;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class TipoVehiculoController extends Controller
 {
@@ -14,51 +15,20 @@ class TipoVehiculoController extends Controller
      */
     public function index()
     {
-        //
+        return TipoVehiculo::select(TipoVehiculo::raw('count(*) as total'),'tipo as datox')
+        ->groupBy('tipo')
+        ->orderBy('total','desc')
+        ->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    public function exportPdf(){
+        $modelos = TipoVehiculo::select(TipoVehiculo::raw('count(*) as total'),'tipo as datox')
+        ->groupBy('tipo')
+        ->orderBy('total','desc')
+        ->limit(500)
+        ->get();
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $pdf = PDF::loadView('pdf.modelos',compact('modelos'));
+        return $pdf->download('modelos.pdf');
     }
 }
